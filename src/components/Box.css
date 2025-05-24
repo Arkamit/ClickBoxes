@@ -6,3 +6,8 @@
     border: 2px solid #000000;
     cursor: pointer;
 }
+
+.selected {
+    background-color: #448b44;
+    cursor: default;
+}
