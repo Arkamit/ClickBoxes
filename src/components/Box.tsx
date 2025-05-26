@@ -1,4 +1,4 @@
-import { RefObject, useState } from 'react';
+import { RefObject } from 'react';
 import './Box.css';
 
 const TOTAL_BOXES = 9;
@@ -10,33 +10,45 @@ interface IBoxProps {
 
 function Box(boxProps: IBoxProps) {
     const { id, selectedBoxes } = boxProps;
-    const [boxClass, setBoxClass] = useState<string>("box");
-    
 
-    const TriggerDeselection = () => {
-        console.log("Deselection Triggered!!!");
+    const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+    const TriggerDeselection = async () => {
+        await sleep(750);
+        const boxes = selectedBoxes?.current ?? [];
+        for (let i = boxes.length - 1; i >= 0; i--) {
+            const boxId = boxes[i];
+            const boxElement = document.getElementById(`${boxId}`);
+            boxElement!.className = `box`;
+            await sleep(750);
+        }
+        if (selectedBoxes && selectedBoxes.current) {
+            selectedBoxes.current = [];
+        }
     }
 
-    const OnBoxClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const OnBoxClick = async (event: React.MouseEvent<HTMLDivElement>) => {
         const id = event.currentTarget.id;
         const position = selectedBoxes?.current.indexOf(id);
 
         if (position === -1) {
             selectedBoxes?.current.push(id);
-            setBoxClass(`box selected`);
+            const boxElement = document.getElementById(`${id}`);
+            boxElement!.className = `box selected`;
         } else if (typeof position === 'number' && position > -1) {
             selectedBoxes?.current.splice(position, 1);
-            setBoxClass(`box`);
+            const boxElement = document.getElementById(`${id}`);
+            boxElement!.className = `box`;
         }
         
         if (selectedBoxes?.current.length === TOTAL_BOXES) {
-            TriggerDeselection();
+            await TriggerDeselection();
             return;
         }
     }
 
     return (
-        <div className={boxClass} id={id} onClick={OnBoxClick}></div>
+        <div className={`box`} id={id} onClick={OnBoxClick}></div>
     )
 }
 
